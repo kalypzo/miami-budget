@@ -27,25 +27,27 @@
       p.flow-text Hover over blah for more details
     .row
       .col.m6
-        each slices
-          .budget-item.row(id="#{key}")
-            .row
-             .col.s2
-              .row
-                button.raise-priority.btn-floating
-                  i.fa.fa-lg.fa-arrow-up
-              .row
-                button.lower-priority.btn-floating
-                  i.fa.fa-lg.fa-arrow-down
-             .col.s9
-              .row
-                .col.s7
-                  a(href="#")
-                    h5.budget-label #{label}
-                .col.s5
-                  h6.dollar-amt #{dollars}
-              .row
-                input.validate(type="range" value="#{value}" min="0" max="100" step="1")
+        ul#budget-list
+          each slices
+            li
+              .budget-item.row(id="#{key}")
+                .row
+                 .col.s2
+                  .row
+                    button.raise-priority.btn-floating
+                      i.fa.fa-lg.fa-arrow-up
+                  .row
+                    button.lower-priority.btn-floating
+                      i.fa.fa-lg.fa-arrow-down
+                 .col.s9
+                  .row
+                    .col.s7
+                      a(href="#")
+                        h5.budget-label #{label}
+                    .col.s5
+                      h6.dollar-amt #{dollars}
+                  .row
+                    input.validate(type="range" value="#{value}" min="0" max="100" step="1")
       .col.m6
         .row
           +pieChart
