@@ -1,0 +1,15 @@
+li
+  .budget-item.row(id="#{key}")
+    .row
+     .col.s2
+      .row.drag-area
+        i.fa.fa-5x.fa-sort
+     .col.s9
+      .row
+        .col.s7
+          a(href="#")
+            h5.budget-label #{label}
+        .col.s5
+          h6.dollar-amt #{dollars}
+      .row
+        input.validate(type="range" value="#{value}" min="0" max="100" step="1")

@@ -1,4 +1,4 @@
-var Slices = new Meteor.Collection(null);
+//var Slices = new Meteor.Collection(null);
 Session.setDefault('pieChartSort','none');
 Session.setDefault('pieChartSortModifier',undefined);
 
@@ -46,6 +46,9 @@ Template.form.events({
     console.log('Submitting graph...');
     Meteor.call('submitGraph', Slices.find().fetch());
     $('#results').removeClass('hidden');
+  },
+  'mouseover .drag-area': function(e) {
+    console.log('Drag Area moused over.');
   }
 });
 
@@ -61,7 +64,7 @@ Template.form.helpers({
 });
 
 Template.pieChart.events({
-	'click #pts':function(){   
+	'click #pts':function(){
     Expenses.find({}).map(function(pt) {
       Slices.insert({
 			  value:Math.floor(pt.amount)
@@ -145,13 +148,13 @@ Template.pieChart.rendered = function(){
 	var arc = d3.svg.arc()
 					.innerRadius(innerRadius)
 					.outerRadius(outerRadius);
-	
+
 	var pie = d3.layout.pie()
 		.sort(null)
 		.value(function(d) {
 			return d.value;
 		});
-	
+
 	//Easy colors accessible via a 10-step ordinal scale
 	var color = d3.scale.category10();
 
@@ -159,8 +162,8 @@ Template.pieChart.rendered = function(){
 	var svg = d3.select("#pieChart")
 				.attr("width", w)
 				.attr("height", h);
-	
-	var key = function(d){ 
+
+	var key = function(d){
 		return d.data._id;
 	};
 
@@ -169,19 +172,19 @@ Template.pieChart.rendered = function(){
 		var sortModifier = Session.get('pieChartSortModifier');
 		if(sortModifier && sortModifier.sort)
 			modifier.sort = sortModifier.sort;
-		
+
 		var dataset = Slices.find({},modifier).fetch();
-		
+
 		var arcs = svg.selectAll("g.arc")
 					  .data(pie(dataset), key);
 
-		var newGroups = 
+		var newGroups =
 			arcs
 				.enter()
 				.append("g")
 				.attr("class", "arc")
 				.attr("transform", "translate(" + outerRadius + "," + outerRadius + ")");
-		
+
 		//Draw arc paths
     var bigArc = true;
 		newGroups
@@ -190,7 +193,7 @@ Template.pieChart.rendered = function(){
 				return color(i);
 			})
 			.attr("d", arc);
-		
+
 		//Labels
 		newGroups
 			.append("text")
@@ -213,7 +216,7 @@ Template.pieChart.rendered = function(){
 					return arc(interpolate(t));
 				};
 			});
-		
+
 		arcs
 			.transition()
 			.select('text')
