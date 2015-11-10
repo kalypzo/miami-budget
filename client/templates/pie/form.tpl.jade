@@ -27,8 +27,15 @@
       p.flow-text Hover over blah for more details
     .row
       .col.m6
-        ul#budget-list
-          +sortable(items=slices disabled=true)
+        .row
+          .switch
+            label
+              | Sort
+              input#budget-sort(type="checkbox")
+              span.lever
+        .row
+          ul#budget-list
+            //+sortable(items=slices)
             +budgetlist
       .col.m6
         .row

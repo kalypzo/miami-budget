@@ -1,6 +1,7 @@
 //var Slices = new Meteor.Collection(null);
 Session.setDefault('pieChartSort','none');
 Session.setDefault('pieChartSortModifier',undefined);
+var BudgetSortable;
 
 Template.pieResults.helpers({
   slice: function() {
@@ -33,7 +34,7 @@ updateGraph = function (newVal, oldVal, key) {
 }
 
 Template.form.events({
-  'change input': function (e) {
+  'change .budget-item input': function (e) {
     var tar = e.target;
     var oldVal = Slices.findOne({key:$(tar).closest('.budget-item').attr("id")}).value;
     Slices.update({_id:Slices.findOne({key:$(tar).closest('.budget-item').attr("id")})._id}, {$set:{value: tar.value}});
@@ -47,8 +48,14 @@ Template.form.events({
     Meteor.call('submitGraph', Slices.find().fetch());
     $('#results').removeClass('hidden');
   },
-  'mouseover .drag-area': function(e) {
-    console.log('Drag Area moused over.');
+  'change #budget-sort': function(e) {
+    if (e.target.checked) {
+      BudgetSortable.options.disabled = false;
+      $('#budget-list li').addClass('drag-area');
+    } else {
+      BudgetSortable.options.disabled = true;
+      $('#budget-list li').removeClass('drag-area');
+    }
   }
 });
 
@@ -62,6 +69,12 @@ Template.form.helpers({
     return "$"+numeral(dollars).format('0,0');
   }
 });
+
+Template.budgetlist.helpers({
+  slices: function() {
+    return Slices.find();
+  }
+})
 
 Template.pieChart.events({
 	'click #pts':function(){
@@ -102,7 +115,7 @@ Template.pieChart.events({
 });
 
 Template.form.rendered = function(){
-  if(Slices.find({}).count() === 0){
+  if(Slices.find().count() === 0){
     Slices.insert({
       label: 'Public Safety',
       key: 'publicSafety',
@@ -134,6 +147,15 @@ Template.form.rendered = function(){
         key:'Economic Development',
         value: "10"
     });*/
+  }
+
+  BudgetSortable = Sortable.create($('#budget-list')[0]);
+  if ($('#budget-sort').checked) {
+    BudgetSortable.options.disabled = false;
+    $('#budget-list li').addClass('drag-area');
+  } else {
+    BudgetSortable.options.disabled = true;
+    $('#budget-list li').removeClass('drag-area');
   }
 }
 
