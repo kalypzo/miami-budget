@@ -1,6 +1,7 @@
-var Slices = new Meteor.Collection(null);
+//var Slices = new Meteor.Collection(null);
 Session.setDefault('pieChartSort','none');
 Session.setDefault('pieChartSortModifier',undefined);
+var BudgetSortable;
 
 Template.pieResults.helpers({
   slice: function() {
@@ -33,7 +34,7 @@ updateGraph = function (newVal, oldVal, key) {
 }
 
 Template.form.events({
-  'change input': function (e) {
+  'change .budget-item input': function (e) {
     var tar = e.target;
     var oldVal = Slices.findOne({key:$(tar).closest('.budget-item').attr("id")}).value;
     Slices.update({_id:Slices.findOne({key:$(tar).closest('.budget-item').attr("id")})._id}, {$set:{value: tar.value}});
@@ -46,6 +47,15 @@ Template.form.events({
     console.log('Submitting graph...');
     Meteor.call('submitGraph', Slices.find().fetch());
     $('#results').removeClass('hidden');
+  },
+  'change #budget-sort': function(e) {
+    if (e.target.checked) {
+      BudgetSortable.options.disabled = false;
+      $('#budget-list li').addClass('drag-area');
+    } else {
+      BudgetSortable.options.disabled = true;
+      $('#budget-list li').removeClass('drag-area');
+    }
   }
 });
 
@@ -60,8 +70,14 @@ Template.form.helpers({
   }
 });
 
+Template.budgetlist.helpers({
+  slices: function() {
+    return Slices.find();
+  }
+})
+
 Template.pieChart.events({
-	'click #pts':function(){   
+	'click #pts':function(){
     Expenses.find({}).map(function(pt) {
       Slices.insert({
 			  value:Math.floor(pt.amount)
@@ -99,7 +115,7 @@ Template.pieChart.events({
 });
 
 Template.form.rendered = function(){
-  if(Slices.find({}).count() === 0){
+  if(Slices.find().count() === 0){
     Slices.insert({
       label: 'Public Safety',
       key: 'publicSafety',
@@ -132,6 +148,15 @@ Template.form.rendered = function(){
         value: "10"
     });*/
   }
+
+  BudgetSortable = Sortable.create($('#budget-list')[0]);
+  if ($('#budget-sort').checked) {
+    BudgetSortable.options.disabled = false;
+    $('#budget-list li').addClass('drag-area');
+  } else {
+    BudgetSortable.options.disabled = true;
+    $('#budget-list li').removeClass('drag-area');
+  }
 }
 
 Template.pieChart.rendered = function(){
@@ -145,13 +170,13 @@ Template.pieChart.rendered = function(){
 	var arc = d3.svg.arc()
 					.innerRadius(innerRadius)
 					.outerRadius(outerRadius);
-	
+
 	var pie = d3.layout.pie()
 		.sort(null)
 		.value(function(d) {
 			return d.value;
 		});
-	
+
 	//Easy colors accessible via a 10-step ordinal scale
 	var color = d3.scale.category10();
 
@@ -159,8 +184,8 @@ Template.pieChart.rendered = function(){
 	var svg = d3.select("#pieChart")
 				.attr("width", w)
 				.attr("height", h);
-	
-	var key = function(d){ 
+
+	var key = function(d){
 		return d.data._id;
 	};
 
@@ -169,19 +194,19 @@ Template.pieChart.rendered = function(){
 		var sortModifier = Session.get('pieChartSortModifier');
 		if(sortModifier && sortModifier.sort)
 			modifier.sort = sortModifier.sort;
-		
+
 		var dataset = Slices.find({},modifier).fetch();
-		
+
 		var arcs = svg.selectAll("g.arc")
 					  .data(pie(dataset), key);
 
-		var newGroups = 
+		var newGroups =
 			arcs
 				.enter()
 				.append("g")
 				.attr("class", "arc")
 				.attr("transform", "translate(" + outerRadius + "," + outerRadius + ")");
-		
+
 		//Draw arc paths
     var bigArc = true;
 		newGroups
@@ -190,7 +215,7 @@ Template.pieChart.rendered = function(){
 				return color(i);
 			})
 			.attr("d", arc);
-		
+
 		//Labels
 		newGroups
 			.append("text")
@@ -213,7 +238,7 @@ Template.pieChart.rendered = function(){
 					return arc(interpolate(t));
 				};
 			});
-		
+
 		arcs
 			.transition()
 			.select('text')

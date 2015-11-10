@@ -1,0 +1,6 @@
+.drag-area{
+  cursor: move;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+  cursor: grab;
+}

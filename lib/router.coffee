@@ -15,3 +15,7 @@ Router.route('budget-builder', ()->
 )
 Router.route('pie')
 #Router.route('form')
+
+Router.route('test', ()->
+  this.render('test')
+)
